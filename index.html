@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java HashMap Interactive Demo</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const HashMapDemo = () => {
+          const [hashMap, setHashMap] = useState({});
+          const [output, setOutput] = useState([]);
+          const [searchKey, setSearchKey] = useState('');
+          const [searchResult, setSearchResult] = useState('');
+          const [activeTab, setActiveTab] = useState('visual');
+
+          const log = (message, type = 'info') => {
+            setOutput(prev => [...prev, { message, type, timestamp: Date.now() }]);
+          };
+
+          const hashFunction = (key) => {
+            let hash = 0;
+            for (let i = 0; i < key.length; i++) {
+              hash = (hash << 5) - hash + key.charCodeAt(i);
+              hash = hash & hash;
+            }
+            return Math.abs(hash % 10);
+          };
+
+          const runExample = () => {
+            setHashMap({});
+            setOutput([]);
+            
+            log('// Create a HashMap object using the Map interface', 'comment');
+            log('// Key type: String, Value type: String', 'comment');
+            log('Map<String, String> map = new HashMap<>();', 'code');
+            log('');
+            
+            log('// ----- INSERTION -----', 'comment');
+            log('// put(key, value) inserts a key-value pair into the map.', 'comment');
+            log('// If the key already exists, the value will be updated.', 'comment');
+            
+            setTimeout(() => {
+              setHashMap({ 'name': 'Kimmy' });
+              log('map.put("name", "Kimmy");', 'code');
+            }, 300);
+            
+            setTimeout(() => {
+              setHashMap(prev => ({ ...prev, 'course': 'BSIT' }));
+              log('map.put("course", "BSIT");', 'code');
+              log('');
+            }, 600);
+            
+            setTimeout(() => {
+              log('// Print the entire map.', 'comment');
+              log('// Output format: {key1=value1, key2=value2}', 'comment');
+              log('System.out.println("HashMap contents: " + map);', 'code');
+              log('HashMap contents: {course=BSIT, name=Kimmy}', 'output');
+              log('');
+            }, 900);
+            
+            setTimeout(() => {
+              log('// ----- RETRIEVAL -----', 'comment');
+              log('// get(key) retrieves the value associated with a given key.', 'comment');
+              log('String studentName = map.get("name");', 'code');
+              log('System.out.println("Retrieved value for \'name\': " + studentName);', 'code');
+              log('Retrieved value for \'name\': Kimmy', 'output');
+              log('');
+            }, 1200);
+            
+            setTimeout(() => {
+              log('// ----- MEMBERSHIP CHECK -----', 'comment');
+              log('if (map.containsKey("course")) {', 'code');
+              log('    System.out.println("\'course\' key exists with value: " + map.get("course"));', 'code');
+              log('}', 'code');
+              log('\'course\' key exists with value: BSIT', 'output');
+              log('');
+            }, 1500);
+            
+            setTimeout(() => {
+              log('// ----- DELETION -----', 'comment');
+              log('map.remove("course");', 'code');
+              log('System.out.println("HashMap after removing \'course\': " + map);', 'code');
+              log('HashMap after removing \'course\': {name=Kimmy}', 'output');
+              setHashMap({ 'name': 'Kimmy' });
+            }, 1800);
+          };
+
+          const addEntry = (key, value) => {
+            if (!key || !value) return;
+            
+            const newMap = { ...hashMap };
+            const isUpdate = key in newMap;
+            newMap[key] = value;
+            setHashMap(newMap);
+            
+            if (isUpdate) {
+              log(`map.put("${key}", "${value}"); // Updated existing key`, 'code');
+            } else {
+              log(`map.put("${key}", "${value}");`, 'code');
+            }
+          };
+
+          const removeEntry = (key) => {
+            const newMap = { ...hashMap };
+            delete newMap[key];
+            setHashMap(newMap);
+            log(`map.remove("${key}");`, 'code');
+          };
+
+          const searchEntry = () => {
+            if (searchKey in hashMap) {
+              const value = hashMap[searchKey];
+              setSearchResult(`Found: "${searchKey}" = "${value}"`);
+              log(`map.get("${searchKey}") returns: "${value}"`, 'output');
+            } else {
+              setSearchResult(`Key "${searchKey}" not found (returns null)`);
+              log(`map.get("${searchKey}") returns: null`, 'output');
+            }
+          };
+
+          const checkKey = () => {
+            const exists = searchKey in hashMap;
+            if (exists) {
+              setSearchResult(`Key "${searchKey}" exists in the map`);
+              log(`map.containsKey("${searchKey}") returns: true`, 'output');
+            } else {
+              setSearchResult(`Key "${searchKey}" does not exist`);
+              log(`map.containsKey("${searchKey}") returns: false`, 'output');
+            }
+          };
+
+          const clearMap = () => {
+            setHashMap({});
+            setOutput([]);
+            setSearchResult('');
+            log('map.clear();', 'code');
+          };
+
+          const HashTableVisualization = () => {
+            if (Object.keys(hashMap).length === 0) {
+              return (
+                <div className="flex items-center justify-center h-64 text-slate-400">
+                  <div className="text-center">
+                    <svg className="mx-auto mb-2 opacity-50" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <p>HashMap is empty</p>
+                    <p className="text-sm">Click "Run Example" to load sample data</p>
+                  </div>
+                </div>
+              );
+            }
+
+            const buckets = Array(10).fill(null).map(() => []);
+            Object.entries(hashMap).forEach(([key, value]) => {
+              const hash = hashFunction(key);
+              buckets[hash].push({ key, value });
+            });
+
+            return (
+              <div className="p-6">
+                <div className="mb-6 text-center">
+                  <div className="inline-block bg-orange-600/20 border border-orange-500 rounded-lg px-4 py-2">
+                    <p className="text-orange-300 text-sm font-semibold">Hash Table Structure (10 buckets)</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                  {buckets.map((bucket, index) => (
+                    <div key={index} className="bg-slate-700 rounded-lg p-3 min-h-[100px]">
+                      <div className="text-center mb-2">
+                        <span className="bg-slate-600 text-white px-2 py-1 rounded text-xs font-mono">
+                          Bucket {index}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {bucket.map((entry) => (
+                          <div
+                            key={entry.key}
+                            className="bg-gradient-to-br from-orange-600 to-orange-700 text-white p-2 rounded cursor-pointer hover:shadow-lg transition-all text-xs"
+                            onClick={() => removeEntry(entry.key)}
+                          >
+                            <div className="font-bold truncate">{entry.key}</div>
+                            <div className="text-orange-200 truncate">{entry.value}</div>
+                          </div>
+                        ))}
+                        {bucket.length === 0 && (
+                          <div className="text-slate-500 text-center text-xs italic">empty</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-700/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-3">Key-Value Pairs</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {Object.entries(hashMap).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="bg-gradient-to-br from-orange-600 to-orange-700 text-white p-4 rounded-lg cursor-pointer hover:shadow-xl transition-all hover:scale-105 border-2 border-orange-400"
+                        onClick={() => removeEntry(key)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="text-xs bg-orange-800 px-2 py-1 rounded font-mono">
+                            hash: {hashFunction(key)}
+                          </div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-50">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </div>
+                        <div className="text-sm opacity-75 mb-1">Key</div>
+                        <div className="text-lg font-bold mb-2">"{key}"</div>
+                        <div className="text-sm opacity-75 mb-1">Value</div>
+                        <div className="text-lg font-bold">"{value}"</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          };
+
+          const JavaCodeView = () => {
+            return (
+              <div className="bg-slate-900 p-6 rounded-lg font-mono text-sm overflow-auto" style={{ maxHeight: '600px' }}>
+                <pre className="text-green-400">
+{`import java.util.Map;        // Import the Map interface
+import java.util.HashMap;     // Import the HashMap class
+
+public class HashMapExample {
+    public static void main(String[] args) {
+        // Create a HashMap object using the Map interface
+        // Key type: String, Value type: String
+        Map<String, String> map = new HashMap<>();
+        
+        // ----- INSERTION -----
+        // put(key, value) inserts a key-value pair into the map.
+        // If the key already exists, the value will be updated.
+        map.put("name", "Kimmy");
+        map.put("course", "BSIT");
+        
+        // Print the entire map.
+        // Output format: {key1=value1, key2=value2}
+        System.out.println("HashMap contents: " + map);
+        // HashMap contents: {course=BSIT, name=Kimmy}
+        
+        // ----- RETRIEVAL -----
+        // get(key) retrieves the value associated with a given key.
+        String studentName = map.get("name");
+        System.out.println("Retrieved value for 'name': " + studentName);
+        // Retrieved value for 'name': Kimmy
+        
+        // ----- MEMBERSHIP CHECK -----
+        if (map.containsKey("course")) {
+            System.out.println("'course' key exists with value: " + map.get("course"));
+        }
+        // 'course' key exists with value: BSIT
+        
+        // ----- DELETION -----
+        map.remove("course");
+        System.out.println("HashMap after removing 'course': " + map);
+        // HashMap after removing 'course': {name=Kimmy}
+    }
+}`}
+                </pre>
+              </div>
+            );
+          };
+
+          return (
+            <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+              <div className="max-w-7xl mx-auto">
+                <div className="mb-6">
+                  <h1 className="text-4xl font-bold text-white mb-2">Java HashMap Demo</h1>
+                  <p className="text-slate-300">Uses a hash function to convert keys into array indices for O(1) operations</p>
+                  <div className="mt-2 flex gap-2 flex-wrap">
+                    <span className="bg-orange-600/20 border border-orange-500 text-orange-300 px-3 py-1 rounded text-sm">
+                      O(1) Average Time
+                    </span>
+                    <span className="bg-purple-600/20 border border-purple-500 text-purple-300 px-3 py-1 rounded text-sm">
+                      No Order Guarantee
+                    </span>
+                    <span className="bg-blue-600/20 border border-blue-500 text-blue-300 px-3 py-1 rounded text-sm">
+                      Hash-based Storage
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setActiveTab('visual')}
+                    className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                      activeTab === 'visual'
+                        ? 'bg-slate-800 text-white border-t-2 border-orange-500'
+                        : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Interactive Demo
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('code')}
+                    className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+                      activeTab === 'code'
+                        ? 'bg-slate-800 text-white border-t-2 border-orange-500'
+                        : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Java Code
+                  </button>
+                </div>
+
+                {activeTab === 'visual' ? (
+                  <>
+                    <div className="bg-slate-800 rounded-lg p-4 mb-4 border border-slate-700">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="bg-slate-700/50 p-4 rounded-lg">
+                          <h3 className="text-white font-semibold mb-3">Add/Update Entry</h3>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Key (String)"
+                              id="addKey"
+                              className="flex-1 px-3 py-2 bg-slate-600 text-white rounded border border-slate-500 focus:outline-none focus:border-orange-500"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Value (String)"
+                              id="addValue"
+                              className="flex-1 px-3 py-2 bg-slate-600 text-white rounded border border-slate-500 focus:outline-none focus:border-orange-500"
+                            />
+                            <button
+                              onClick={() => {
+                                const key = document.getElementById('addKey').value;
+                                const value = document.getElementById('addValue').value;
+                                if (key && value) {
+                                  addEntry(key, value);
+                                  document.getElementById('addKey').value = '';
+                                  document.getElementById('addValue').value = '';
+                                }
+                              }}
+                              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-700/50 p-4 rounded-lg">
+                          <h3 className="text-white font-semibold mb-3">Search & Check</h3>
+                          <div className="flex gap-2 mb-2">
+                            <input
+                              type="text"
+                              placeholder="Search by key..."
+                              value={searchKey}
+                              onChange={(e) => setSearchKey(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && searchEntry()}
+                              className="flex-1 px-3 py-2 bg-slate-600 text-white rounded border border-slate-500 focus:outline-none focus:border-blue-500"
+                            />
+                            <button
+                              onClick={searchEntry}
+                              className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors text-sm"
+                              title="get(key)"
+                            >
+                              get()
+                            </button>
+                            <button
+                              onClick={checkKey}
+                              className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors text-sm"
+                              title="containsKey(key)"
+                            >
+                              containsKey()
+                            </button>
+                          </div>
+                          {searchResult && (
+                            <div className="mt-2 px-3 py-2 bg-slate-600 text-slate-200 rounded text-sm">
+                              {searchResult}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={runExample}
+                          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded flex items-center gap-2 transition-colors"
+                        >
+                          Run Example
+                        </button>
+                        <button
+                          onClick={clearMap}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center gap-2 transition-colors"
+                        >
+                          Clear All
+                        </button>
+                        <div className="flex-1" />
+                        <div className="px-4 py-2 bg-slate-700 text-slate-300 rounded text-sm">
+                          Size: <span className="font-bold text-white">{Object.keys(hashMap).length}</span> entries
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-800 rounded-lg border border-slate-700 mb-4">
+                      <div className="bg-slate-700/50 px-4 py-2 border-b border-slate-600">
+                        <h3 className="text-white font-semibold">HashMap Internal Structure</h3>
+                      </div>
+                      <HashTableVisualization />
+                    </div>
+
+                    <div className="bg-slate-800 rounded-lg border border-slate-700">
+                      <div className="bg-slate-700/50 px-4 py-2 border-b border-slate-600 flex justify-between items-center">
+                        <h3 className="text-white font-semibold">Console Output</h3>
+                        <button
+                          onClick={() => setOutput([])}
+                          className="text-xs text-slate-400 hover:text-white transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div className="p-4 font-mono text-sm h-64 overflow-auto">
+                        {output.length === 0 ? (
+                          <div className="text-slate-500 italic">Console output will appear here...</div>
+                        ) : (
+                          output.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className={`mb-1 ${
+                                item.type === 'comment'
+                                  ? 'text-slate-500 italic'
+                                  : item.type === 'code'
+                                  ? 'text-green-400'
+                                  : item.type === 'output'
+                                  ? 'text-blue-400'
+                                  : 'text-slate-300'
+                              }`}
+                            >
+                              {item.message}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-slate-800 rounded-lg border border-slate-700">
+                    <JavaCodeView />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<HashMapDemo />, document.getElementById('root'));
+    </script>
+</body>
+</html>
